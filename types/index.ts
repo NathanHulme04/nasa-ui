@@ -1,0 +1,1 @@
+export type { NasaApod } from './NasaApod';
