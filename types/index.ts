@@ -1,1 +1,1 @@
-export type { NasaApod } from './NasaApod';
+export type { nasaApod } from './nasaApod';

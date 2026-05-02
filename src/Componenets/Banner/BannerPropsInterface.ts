@@ -1,4 +1,4 @@
-import { NasaApod } from '../../../types';
+import { nasaApod } from '../../../types';
 export interface BannerProps { 
-    NasaApod: NasaApod | null 
+    nasaApod: nasaApod | null 
 }

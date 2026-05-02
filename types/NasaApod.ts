@@ -1,4 +1,4 @@
-export type NasaApod = {
+export type nasaApod = {
     title: string;
     url: string;
     explanation: string;

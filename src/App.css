@@ -28,6 +28,30 @@
   color: #61dafb;
 }
 
+.apod-card-section-header {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+}
+
+
+.apod-pagination {
+  margin: 0 4px;
+  padding: 8px 12px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.apod-pagination-button-active {
+  background-color: #61dafb;
+  color: white;
+}
+
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
