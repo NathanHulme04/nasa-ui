@@ -6,6 +6,9 @@ import ApodCardSection from './Componenets/ApodCard/ApodCardSection';
 import { nasaApod } from '../types';
 import staticData from './Data/response-16-06-95-02-05-26.json';
 
+//TO DO: Rename
+const typedStaticData = staticData as nasaApod[];
+
 function App() {
 
   // TO DO:
@@ -43,7 +46,7 @@ function App() {
         <h1>Welcome to the NASA APOD Gallery</h1>
         <p>Explore the wonders of the universe with our NASA Astronomy Picture of the Day (APOD) gallery. Each day, we bring you a new image or video from NASA's APOD API, showcasing the beauty and mystery of space. From stunning nebulae to breathtaking galaxies, our gallery is your gateway to the cosmos. Dive into the explanations and discover the science behind each celestial masterpiece. Join us on this cosmic journey and experience the awe-inspiring wonders of our universe.</p>
         <p>Here you can search through the APOD collection by date, title, or keywords to find your favorite space imagery.</p>
-        <p><i><b>This collection of images is relevant as of date: {new Date(staticData[0]?.date).toLocaleDateString()}</b></i></p>
+        <p><i><b>This collection of images is relevant as of date: {new Date(typedStaticData[0]?.date).toLocaleDateString()}</b></i></p>
       </section>
       {/* <Banner nasaApod={apod ? apod[0] : null} /> */}
       <ApodCardSection />
