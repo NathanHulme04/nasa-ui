@@ -2,10 +2,15 @@ import react, {useState, useEffect} from 'react';
 import { nasaApod } from '../../../types';
 import ApodCard from './ApodCard';
 import styled from 'styled-components';
+import { DatePicker } from '@mantine/dates';
+import icons8 from '../../assets/icons8-calendar-week-32.png';
+import moonLoading from '../../assets/moon-loading.gif';
+
+//to do: add pagination controls, move search and sort controls to a separate component, add loading state, add error handling, add better styling, add tests. Add types for date picker value and change handler. Add debounce to search input.
 
 const ApodCardWrapperGrid = styled.div`
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(33rem, 1fr));
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 16px;
 
     @media (max-width: 768px) {
@@ -25,6 +30,40 @@ const StyledSearchInput = styled.input`
     width: 100%;
 `;
 
+export const StyledCalendarWrapper = styled.div`
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    position: relative;
+    z-index: 1;
+    padding: 8px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+
+    & span {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        min-width: max-content;
+    }
+`
+
+export const DatePickerWrapper = styled.div`
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 10;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+`
+
 const ApodCardSection = ( ) => {
 
     const [apod, setApod] = useState<nasaApod[] | null>(null);
@@ -34,9 +73,29 @@ const ApodCardSection = ( ) => {
     const [sortOrder, setSortOrder]         = useState<string>('desc');
     const [currentPage, setCurrentPage]     = useState<number>(1);
 
-    const url = process.env.APP_URL + "/search";
+    //date picker
+    const [datePickerValue, setValue] = useState<[string | null, string | null]>([null, null]);
+
+    const [showDatePicker, setDatePickerVisibility] = useState<boolean>(false);
+
+    //loading
+    const [loading, setLoading] = useState<boolean>(false);
+
+    const handleCalendarVisibility = (): void => {
+        setDatePickerVisibility(!showDatePicker);
+    }
+
+    const handleCalendarChange = (datePickerValue: [string | null, string | null]) => {
+
+        if( datePickerValue.length === 2 && datePickerValue[0] && datePickerValue[1] ) {
+            setDatePickerVisibility(false);
+        }
+        setValue(datePickerValue);
+    }
+
+    const url = process.env.REACT_APP_API_URL + "/search";
     
-    const getItems = (search: string, sort: string, order: string, page: number) => {
+    const getItems = (search: string, sort: string, order: string, page: number, datePickerValue: [string | null, string | null]) => {
         const searchParams = new URLSearchParams();
         if( search && search.length > 0 ) { 
             searchParams.append('searchString', search);
@@ -54,20 +113,28 @@ const ApodCardSection = ( ) => {
             searchParams.append('page', page.toString());
         }
 
+        if( datePickerValue[0] && datePickerValue[1] ) {
+            searchParams.append('startDate', datePickerValue[0]);
+            searchParams.append('endDate', datePickerValue[1]);
+        }
+
         searchParams.append('sortOption', sortOption);
 
         return fetch(url + '?' + searchParams.toString()).then((response) => response.json());
     }
 
     useEffect(() => {
-        getItems(searchString, sortOption, sortOrder, currentPage)
+        setLoading(true);
+        getItems(searchString, sortOption, sortOrder, currentPage, datePickerValue)
             .then((response) => {
+                setLoading(false);
                 setApod(response);
             })
             .catch((error) => {
                 console.error('Error fetching APOD items:', error);
+                setLoading(false);
             });
-    }, [searchString, sortOption, sortOrder, currentPage]);
+    }, [searchString, sortOption, sortOrder, currentPage, datePickerValue[0], datePickerValue[1]]);
 
     const searchApods = (e: React.ChangeEvent<HTMLInputElement>) => {
         setCurrentPage(1);
@@ -124,18 +191,38 @@ const ApodCardSection = ( ) => {
             </section>
             <section className='apod-card-section'>
                 <div className='apod-card-section-header'>
-                    <StyledSearchInput type="search" placeholder='Search by date, title, or keywords...' onChange={searchApods} />
-                    <select style={{marginLeft: '16px', padding: '8px', fontSize: '1rem', border: '1px solid #ccc', borderRadius: '8px'}} onChange={sortApods}>
-                        <option value="">Sort By</option>
-                        <option value="desc">Date - newest to oldest</option>
-                        <option value="asc" defaultChecked>Date - oldest to newest</option>
-                    </select>
+                    <StyledSearchInput type="search" placeholder='Search by date, title, or keywords...' onChange={searchApods} id="search-input" alt="Search" />
+                    <div style={{display:'flex', flexDirection:'row', gap:'16px', width: '100%'}}>
+                        <StyledCalendarWrapper>
+                            <span onClick={handleCalendarVisibility}>
+                                <span>
+                                    <img src={icons8} alt="Calendar" />
+                                </span>
+                                <span>
+                                    {datePickerValue[0] && datePickerValue[1] ? `${datePickerValue[0]} to ${datePickerValue[1]}` : 'Select a date'}
+                                    {datePickerValue[0] && datePickerValue[1] ? <span style={{marginLeft: '8px', cursor: 'pointer'}} onClick={(e) => {e.stopPropagation(); setDatePickerVisibility(false); setValue([null, null])}}>X</span> : ''}
+                                </span>
+                            </span>
+                            <DatePickerWrapper style={{display: showDatePicker ? 'block' : 'none'}}>
+                                <DatePicker type="range" value={datePickerValue} onChange={handleCalendarChange} maxDate={new Date().toISOString().split('T')[0]} />
+                            </DatePickerWrapper>
+                        </StyledCalendarWrapper>
+                        <select style={{width: '100%', padding: '8px', fontSize: '1rem', border: '1px solid #ccc', borderRadius: '8px'}} onChange={sortApods} id="sort-select">
+                            <option value="">Sort By</option>
+                            <option value="desc">Date - newest to oldest</option>
+                            <option value="asc" defaultChecked>Date - oldest to newest</option>
+                        </select>
+                    </div>
                 </div>
-                <ApodCardWrapperGrid>
-                    {apod && apod.map((apod, index) => (
-                        <ApodCard nasaApod={apod} key={index} searchTerm={searchString} />
-                    ))}
-                </ApodCardWrapperGrid>
+                {
+                    loading ? 
+                    <img src={moonLoading} alt="Loading..." style={{display: 'block', margin: '32px auto'}} /> : 
+                    <ApodCardWrapperGrid>
+                        {apod && apod.map((apod, index) => (
+                            <ApodCard nasaApod={apod} key={index} searchTerm={searchString} />
+                        ))}
+                    </ApodCardWrapperGrid>
+                }
                 {/* <div className='pagination-controls' style={{display: 'flex', justifyContent: 'center', marginTop: '16px'}}>
                     {renderPaginationControls(currentPage)}
                 </div> */}

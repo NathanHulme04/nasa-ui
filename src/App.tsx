@@ -10,7 +10,7 @@ import staticData from './Data/response-16-06-95-02-05-26.json';
 function App() {
 
   return (
-    <div className="App" style={{ maxWidth: '85vw', margin: '0 auto', padding: '16px' }}>
+    <div className="App">
       <ApodCardSection />
     </div>
     

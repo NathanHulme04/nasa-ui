@@ -1,5 +1,15 @@
 .App {
   text-align: center;
+  max-width: 85vw;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+@media (max-width: 480px) {
+  .App {
+    max-width: 100vw;
+    padding: 8px;
+  }
 }
 
 .App-logo {
@@ -33,7 +43,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  
+  gap: 16px;
+  flex-direction: row;
+}
+
+@media (max-width: 767px) {
+  .apod-card-section-header {
+    flex-direction: column;
+    align-items: center;
+  }
 }
 
 
