@@ -32,7 +32,7 @@ const ApodCard = ( { nasaApod, searchTerm } : ApodCardProps ) => {
                 {nasaApod?.media_type === 'image' && (
                     <img src={nasaApod.url} alt={nasaApod.title} style={{ width: '100%', height: '20rem', border: 'none', objectFit: 'cover' }} />
                 )}
-                {nasaApod?.media_type === 'video' && (nasaApod?.media_type.includes('youtube') || nasaApod?.media_type.includes('vimeo')) && (
+                {nasaApod?.media_type === 'video' && (nasaApod?.url.includes('youtube') || nasaApod?.url.includes('vimeo')) && (
                     <iframe 
                         title={nasaApod.title}
                         src={nasaApod.url}
@@ -41,7 +41,7 @@ const ApodCard = ( { nasaApod, searchTerm } : ApodCardProps ) => {
 
                     />
                 )}
-                {nasaApod?.media_type === 'video' && !(nasaApod?.media_type.includes('youtube') || nasaApod?.media_type.includes('vimeo')) && (
+                {nasaApod?.media_type === 'video' && !(nasaApod?.url.includes('youtube') || nasaApod?.url.includes('vimeo')) && (
                     <video controls style={{ width: '100%', height: '20rem', border: 'none', objectFit: 'cover' }} autoPlay muted loop>
                         <source src={nasaApod.url} type="video/mp4" />
                     </video>
