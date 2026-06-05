@@ -1,13 +1,24 @@
-import react from 'react';
+import { useState } from 'react';
 import { nasaApod } from '../../../types';
-import { ApodCardContainer } from './ApodCard.style';
+import { ApodCardContainer, ApodShowButton } from './ApodCard.style';
+import Overlay from '../Overlay/Overlay';
 
 type ApodCardProps = {
     nasaApod: nasaApod | null,
-    searchTerm?: string
+    searchTerm?: string,
+    openOverlay: (content: React.ReactNode) => void
 }
 
-const ApodCard = ( { nasaApod, searchTerm } : ApodCardProps ) => {
+const ApodCard = ( { nasaApod, searchTerm, openOverlay } : ApodCardProps ) => {
+
+    const [isExplanationExpanded, setIsExplanationExpanded] = useState<boolean>(false);
+    const [isOverlayVisible, setIsOverlayVisible] = useState<boolean>(false);
+
+    const showImage = () => {
+        openOverlay(
+            <img src={nasaApod?.url} alt={nasaApod?.title} style={{ maxWidth: '90vw', maxHeight: '80vh', border: 'none', objectFit: 'contain' }} />
+        )
+    }
 
     const highlightSearchTerms = (text: string, searchTerm: string) => {
         if( !searchTerm || searchTerm.length === 0 ) {
@@ -23,6 +34,7 @@ const ApodCard = ( { nasaApod, searchTerm } : ApodCardProps ) => {
             return part;
         });
     };
+
     return (
         <ApodCardContainer>
             <div className='apod-card' style={{position: 'relative'}}>
@@ -30,7 +42,7 @@ const ApodCard = ( { nasaApod, searchTerm } : ApodCardProps ) => {
                     {nasaApod?.date}
                 </span>
                 {nasaApod?.media_type === 'image' && (
-                    <img src={nasaApod.url} alt={nasaApod.title} style={{ width: '100%', height: '20rem', border: 'none', objectFit: 'cover' }} />
+                    <img src={nasaApod.url} alt={nasaApod.title} style={{ width: '100%', height: '20rem', border: 'none', objectFit: 'cover' }} onClick={showImage} />
                 )}
                 {nasaApod?.media_type === 'video' && (nasaApod?.url.includes('youtube') || nasaApod?.url.includes('vimeo')) && (
                     <iframe 
@@ -42,13 +54,23 @@ const ApodCard = ( { nasaApod, searchTerm } : ApodCardProps ) => {
                     />
                 )}
                 {nasaApod?.media_type === 'video' && !(nasaApod?.url.includes('youtube') || nasaApod?.url.includes('vimeo')) && (
-                    <video controls style={{ width: '100%', height: '20rem', border: 'none', objectFit: 'cover' }} autoPlay muted loop>
+                    <video controls style={{ width: '100%', height: '20rem', border: 'none', objectFit: 'cover' }} autoPlay muted loop playsInline>
                         <source src={nasaApod.url} type="video/mp4" />
                     </video>
                 )}
 
                 {searchTerm && searchTerm.length > 0 ? <h2>{highlightSearchTerms(nasaApod?.title || '', searchTerm)}</h2> : <h2>{nasaApod?.title}</h2>}                
-                {searchTerm && searchTerm.length > 0 ? <p>{highlightSearchTerms(nasaApod?.explanation || '', searchTerm)}</p> : <p>{nasaApod?.explanation}</p>}
+                {searchTerm && searchTerm.length > 0 ? <p>{highlightSearchTerms(nasaApod?.explanation || '', searchTerm)}</p> : 
+                    isExplanationExpanded ? 
+                    <>
+                        <p>{nasaApod?.explanation}</p>
+                        <ApodShowButton id={'see-less-' + nasaApod?.date} onClick={() => setIsExplanationExpanded(!isExplanationExpanded)}>See Less</ApodShowButton>
+                    </> : 
+                    <p>
+                        {nasaApod?.explanation.substring(0, 100)}
+                        <ApodShowButton id={'see-more-' + nasaApod?.date} onClick={() => setIsExplanationExpanded(!isExplanationExpanded)}>... See More</ApodShowButton>
+                    </p>
+                }
             </div>
         </ApodCardContainer>
     );

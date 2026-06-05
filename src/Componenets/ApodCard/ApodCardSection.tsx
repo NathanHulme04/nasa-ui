@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { DatePicker } from '@mantine/dates';
 import icons8 from '../../assets/icons8-calendar-week-32.png';
 import moonLoading from '../../assets/moon-loading.gif';
+import Overlay from '../Overlay/Overlay';
 
 //to do: add pagination controls, move search and sort controls to a separate component, add loading state, add error handling, add better styling, add tests. Add types for date picker value and change handler. Add debounce to search input.
 
@@ -181,6 +182,18 @@ const ApodCardSection = ( ) => {
     //     setCurrentPage(pageNum);
     // };
 
+    const [overlayContent, setOverlayContent]       = useState<React.ReactNode>(null);
+    const [isOverlayVisible, setIsOverlayVisible]   = useState<boolean>(false);
+
+    const openOverlay = (content: React.ReactNode) => {
+        setOverlayContent(content);
+        setIsOverlayVisible(true);
+    }
+    const closeOverlay = () => {
+        setIsOverlayVisible(false);
+        setOverlayContent(null);
+    }
+
     return (
         <>
             <section className='intro-section'>
@@ -216,10 +229,10 @@ const ApodCardSection = ( ) => {
                 </div>
                 {
                     loading ? 
-                    <img src={moonLoading} alt="Loading..." style={{display: 'block', margin: '32px auto'}} /> : 
+                    <img src={moonLoading} alt="Loading..." style={{display: 'block', margin: '32px auto', width: '100px', height: '100px'}} /> : 
                     <ApodCardWrapperGrid>
                         {apod && apod.map((apod, index) => (
-                            <ApodCard nasaApod={apod} key={index} searchTerm={searchString} />
+                            <ApodCard nasaApod={apod} key={index} searchTerm={searchString} openOverlay={openOverlay} />
                         ))}
                     </ApodCardWrapperGrid>
                 }
@@ -227,6 +240,7 @@ const ApodCardSection = ( ) => {
                     {renderPaginationControls(currentPage)}
                 </div> */}
             </section>
+            <Overlay content={overlayContent} isVisible={isOverlayVisible} onClose={closeOverlay} />
         </>
     );
 }
