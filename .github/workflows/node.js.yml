@@ -26,6 +26,11 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+
+    - name: Create .env.production file from GitHub Secrets/Variables
+      run: | 
+          echo "REACT_APP_API_URL=${{vars.REACT_APP_API_URL}}" >> .env.production
+    
     - run: npm install
     - run: npm run build --if-present
     - run: npm test
