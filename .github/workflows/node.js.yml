@@ -45,7 +45,7 @@ jobs:
       run: |
         TAGS=$(gcloud artifacts docker tags list \
           europe-west2-docker.pkg.dev/active-alchemy-459613-j5/nasa-app-europe-west-2/nasa-ui \
-          --format="value(tag)" | grep "$(date +'%d-%m-%y)-v" || true)
+          --format="value(tag)" | grep "$(date +'%d-%m-%y')-v" || true)
     
         if [ -z "$TAGS" ]; then
           echo "ITERATION=1" >> $GITHUB_ENV
